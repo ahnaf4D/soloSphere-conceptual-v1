@@ -1,7 +1,43 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Logo from '../../assets/logo.png';
 import BgImg from '../../assets/register.jpg';
+import { AuthContext } from '../../providers/AuthProvider';
+import { useContext } from 'react';
+import toast from 'react-hot-toast';
 const Registration = () => {
+  const navigate = useNavigate();
+  const { createUser, updateUserProfile, signInWithGoogle, user, setUser } =
+    useContext(AuthContext);
+  const handleGoogleSignUp = async () => {
+    try {
+      await signInWithGoogle();
+      toast.success('Successfully Login!');
+      navigate('/');
+    } catch (err) {
+      console.log(err);
+      toast.error(err?.massage);
+    }
+  };
+  const handleSignUp = async (e) => {
+    e.preventDefault();
+    const form = e.target;
+    const name = form.name.value;
+    const email = form.email.value;
+    const password = form.password.value;
+    const photo = form.photo.value;
+    console.log({ name, email, password, photo });
+    try {
+      const result = await createUser(email, password);
+      console.log(result);
+      await updateUserProfile(name, photo);
+      setUser({ ...user, photoURl: photo, displayName: name });
+      navigate('/');
+      toast.success('Registration Successful!');
+    } catch (err) {
+      console.log(err);
+      toast.error(err?.massage);
+    }
+  };
   return (
     <div className='flex justify-center items-center min-h-[calc(100vh-306px)] my-12'>
       <div className='flex w-full max-w-sm mx-auto overflow-hidden bg-white rounded-lg shadow-lg  lg:max-w-4xl '>
@@ -14,7 +50,10 @@ const Registration = () => {
             Get Your Free Account Now.
           </p>
 
-          <div className='flex cursor-pointer items-center justify-center mt-4 text-gray-600 transition-colors duration-300 transform border rounded-lg   hover:bg-gray-50 '>
+          <div
+            onClick={handleGoogleSignUp}
+            className='flex cursor-pointer items-center justify-center mt-4 text-gray-600 transition-colors duration-300 transform border rounded-lg   hover:bg-gray-50 '
+          >
             <div className='px-4 py-2'>
               <svg className='w-6 h-6' viewBox='0 0 40 40'>
                 <path
@@ -37,7 +76,7 @@ const Registration = () => {
             </div>
 
             <span className='w-5/6 px-4 py-3 font-bold text-center'>
-              Sign in with Google
+              Sign up with Google
             </span>
           </div>
 
@@ -50,7 +89,7 @@ const Registration = () => {
 
             <span className='w-1/5 border-b dark:border-gray-400 lg:w-1/4'></span>
           </div>
-          <form>
+          <form onSubmit={handleSignUp}>
             <div className='mt-4'>
               <label
                 className='block mb-2 text-sm font-medium text-gray-600 '
