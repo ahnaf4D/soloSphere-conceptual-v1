@@ -50,6 +50,41 @@ async function run() {
       const result = await bidsCollection.insertOne(bidData);
       res.send(result);
     });
+    // Save Job in DB
+    app.post('/job', async (req, res) => {
+      const job = req.body;
+      const result = await jobsCollection.insertOne(job);
+      res.send(result);
+    });
+    // Get specific user by email
+    app.get('/jobs/:email', async (req, res) => {
+      const email = req.params.email;
+      const query = { 'buyer.email': email };
+      const result = await jobsCollection.find(query).toArray();
+      res.send(result);
+    });
+    // Delete a job
+    app.delete('/jobs/:id', async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await jobsCollection.deleteOne(query);
+      res.send(result);
+    });
+    // Update a Job in DB
+    app.put('/job/:id', async (req, res) => {
+      const id = req.params.id;
+      const jobData = req.body;
+      const query = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updateDoc = {
+        $set: {
+          ...jobData, // update full job data
+        },
+      };
+      const result = await jobsCollection.updateOne(query, updateDoc, options);
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db('admin').command({ ping: 1 });
     console.log(
