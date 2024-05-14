@@ -23,7 +23,7 @@ const Login = () => {
     e.preventDefault();
     const form = e.target;
     const email = form.email.value;
-    const pass = form.pass.value;
+    const pass = form.password.value;
     console.log({ email, pass });
     try {
       const result = await signIn(email, pass);
